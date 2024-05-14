@@ -31,10 +31,10 @@ ENV OSTICKET_DB_USER=osticket
 ENV OSTICKET_DB_PASS=manager_secret
 
 # Modificar el archivo ost-config.php para incluir las variables de entorno
-RUN sed -i "s/define('DBHOST', 'localhost');/define('DBHOST', getenv('OSTICKET_DB_HOST'));/" /var/www/html/osticket/include/ost-config.php && \
-    sed -i "s/define('DBNAME', 'osticket');/define('DBNAME', getenv('OSTICKET_DB_NAME'));/" /var/www/html/osticket/include/ost-config.php && \
-    sed -i "s/define('DBUSER', 'osticket');/define('DBUSER', getenv('OSTICKET_DB_USER'));/" /var/www/html/osticket/include/ost-config.php && \
-    sed -i "s/define('DBPASS', 'securepassword');/define('DBPASS', getenv('OSTICKET_DB_PASS'));/" /var/www/html/osticket/include/ost-config.php
+RUN sed -i "s/define('DBHOST', 'localhost');/define('DBHOST', getenv('OSTICKET_DB_HOST'));/" /var/www/html/osticket/upload/include/ost-config.php && \
+    sed -i "s/define('DBNAME', 'osticket');/define('DBNAME', getenv('OSTICKET_DB_NAME'));/" /var/www/html/osticket/upload/include/ost-config.php && \
+    sed -i "s/define('DBUSER', 'osticket');/define('DBUSER', getenv('OSTICKET_DB_USER'));/" /var/www/html/osticket/upload/include/ost-config.php && \
+    sed -i "s/define('DBPASS', 'securepassword');/define('DBPASS', getenv('OSTICKET_DB_PASS'));/" /var/www/html/osticket/upload/include/ost-config.php
 
 # Exponer el puerto 80
 EXPOSE 80

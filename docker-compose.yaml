@@ -9,16 +9,16 @@ services:
             - MYSQL_USER=osticket
             - MYSQL_PASSWORD=manager_secret
     web:
-        image: wordpress:6
+        image: raggon-cl/osticket:latest
         depends_on:
             - db
         volumes:
-            - ./target:/var/www/html
+            - ./target:/var/www/html/osticket
         environment:
-            - WORDPRESS_DB_USER=manager
-            - WORDPRESS_DB_PASSWORD=secret
-            - WORDPRESS_DB_HOST=db
-            - WORDPRESS_DB_NAME=wordpress
+            - OSTICKET_DB_HOST=db
+            - OSTICKET_DB_NAME=osticket_db
+            - OSTICKET_DB_USER=osticket
+            - OSTICKET_DB_PASS=manager_secret
         ports:
             - 80:80
 volumes:
