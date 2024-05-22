@@ -16,17 +16,18 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     rm -rf /var/lib/apt/lists/*
 
 # Descargar osTicket
-RUN wget https://github.com/osTicket/osTicket/releases/download/v1.18.1/osTicket-v1.18.1.zip && \
-    mkdir /var/www/html/osticket && \
+RUN mkdir /var/www/html/osticket && \
+    cd /var/www/html/osticket && \
+    wget https://github.com/osTicket/osTicket/releases/download/v1.18.1/osTicket-v1.18.1.zip && \
     unzip osTicket-v1.18.1.zip -d /var/www/html/osticket && \
     cp /var/www/html/osticket/upload/include/ost-sampleconfig.php /var/www/html/osticket/upload/include/ost-config.php && \
     rm osTicket-v1.18.1.zip
     
 # Modificar el archivo ost-config.php para incluir las variables de entorno
-RUN sed -i "s/define('DBHOST', 'localhost');/define('DBHOST', getenv('OSTICKET_DB_HOST'));/" /var/www/html/osticket/upload/include/ost-config.php && \
-    sed -i "s/define('DBNAME', 'osticket');/define('DBNAME', getenv('OSTICKET_DB_NAME'));/" /var/www/html/osticket/upload/include/ost-config.php && \
-    sed -i "s/define('DBUSER', 'osticket');/define('DBUSER', getenv('OSTICKET_DB_USER'));/" /var/www/html/osticket/upload/include/ost-config.php && \
-    sed -i "s/define('DBPASS', 'securepassword');/define('DBPASS', getenv('OSTICKET_DB_PASS'));/" /var/www/html/osticket/upload/include/ost-config.php
+RUN sed -i "s/define('DBHOST','%CONFIG-DBHOST');/define('DBHOST', getenv('OSTICKET_DB_HOST'));/" /var/www/html/osticket/upload/include/ost-config.php && \
+    sed -i "s/define('DBNAME','%CONFIG-DBNAME');/define('DBNAME', getenv('OSTICKET_DB_NAME'));/" /var/www/html/osticket/upload/include/ost-config.php && \
+    sed -i "s/define('DBUSER','%CONFIG-DBUSER');/define('DBUSER', getenv('OSTICKET_DB_USER'));/" /var/www/html/osticket/upload/include/ost-config.php && \
+    sed -i "s/define('DBPASS','%CONFIG-DBPASS');/define('DBPASS', getenv('OSTICKET_DB_PASS'));/" /var/www/html/osticket/upload/include/ost-config.php
 
 RUN chown -R www-data:www-data /var/www/html/osticket/ && \
     find /var/www/html/. -type d -exec chmod 755 {} \; && \
