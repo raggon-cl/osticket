@@ -1,6 +1,12 @@
 # Usar la imagen base de Ubuntu 22.04
 FROM ubuntu:22.04
 
+# Variables de entorno para la conexión a la base de datos
+ENV OSTICKET_DB_HOST=osticket-db
+ENV OSTICKET_DB_NAME=osticket_db
+ENV OSTICKET_DB_USER=osticket
+ENV OSTICKET_DB_PASS=manager_secret
+
 # Actualizar el sistema e instalar paquetes necesarios
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y update && \
@@ -14,7 +20,15 @@ RUN wget https://github.com/osTicket/osTicket/releases/download/v1.18.1/osTicket
     mkdir /var/www/html/osticket && \
     unzip osTicket-v1.18.1.zip -d /var/www/html/osticket && \
     cp /var/www/html/osticket/upload/include/ost-sampleconfig.php /var/www/html/osticket/upload/include/ost-config.php && \
-    chown -R www-data:www-data /var/www/html/osticket/ && \
+    rm osTicket-v1.18.1.zip
+    
+# Modificar el archivo ost-config.php para incluir las variables de entorno
+RUN sed -i "s/define('DBHOST', 'localhost');/define('DBHOST', getenv('OSTICKET_DB_HOST'));/" /var/www/html/osticket/upload/include/ost-config.php && \
+    sed -i "s/define('DBNAME', 'osticket');/define('DBNAME', getenv('OSTICKET_DB_NAME'));/" /var/www/html/osticket/upload/include/ost-config.php && \
+    sed -i "s/define('DBUSER', 'osticket');/define('DBUSER', getenv('OSTICKET_DB_USER'));/" /var/www/html/osticket/upload/include/ost-config.php && \
+    sed -i "s/define('DBPASS', 'securepassword');/define('DBPASS', getenv('OSTICKET_DB_PASS'));/" /var/www/html/osticket/upload/include/ost-config.php
+
+RUN chown -R www-data:www-data /var/www/html/osticket/ && \
     find /var/www/html/. -type d -exec chmod 755 {} \; && \
     find /var/www/html/. -type f -exec chmod 644 {} \;
 
@@ -23,22 +37,9 @@ COPY osticket.conf /etc/apache2/sites-available/
 RUN a2ensite osticket.conf && \
     a2enmod rewrite && \
     service apache2 restart
-
-# Variables de entorno para la conexión a la base de datos
-ENV OSTICKET_DB_HOST=osticket-db
-ENV OSTICKET_DB_NAME=osticket_db
-ENV OSTICKET_DB_USER=osticket
-ENV OSTICKET_DB_PASS=manager_secret
-
-# Modificar el archivo ost-config.php para incluir las variables de entorno
-RUN sed -i "s/define('DBHOST', 'localhost');/define('DBHOST', getenv('OSTICKET_DB_HOST'));/" /var/www/html/osticket/upload/include/ost-config.php && \
-    sed -i "s/define('DBNAME', 'osticket');/define('DBNAME', getenv('OSTICKET_DB_NAME'));/" /var/www/html/osticket/upload/include/ost-config.php && \
-    sed -i "s/define('DBUSER', 'osticket');/define('DBUSER', getenv('OSTICKET_DB_USER'));/" /var/www/html/osticket/upload/include/ost-config.php && \
-    sed -i "s/define('DBPASS', 'securepassword');/define('DBPASS', getenv('OSTICKET_DB_PASS'));/" /var/www/html/osticket/upload/include/ost-config.php
-
+    
 # Exponer el puerto 80
 EXPOSE 80
 
 # Comando para iniciar Apache
 CMD ["apachectl", "-D", "FOREGROUND"]
-
