@@ -1,25 +1,30 @@
 services:
-    db:
-        image: mariadb:10
-        volumes:
-            - data:/var/lib/mysql
-        environment:
-            - MYSQL_ROOT_PASSWORD=secret
-            - MYSQL_DATABASE=osticket_db
-            - MYSQL_USER=osticket
-            - MYSQL_PASSWORD=manager_secret
-    web:
-        image: raggon-cl/osticket:latest
-        depends_on:
-            - db
-        volumes:
-            - ./target:/var/www/html/osticket
-        environment:
-            - OSTICKET_DB_HOST=db
-            - OSTICKET_DB_NAME=osticket_db
-            - OSTICKET_DB_USER=osticket
-            - OSTICKET_DB_PASS=manager_secret
-        ports:
-            - 80:80
+  osticket-db:
+    container_name: osticket-db
+    image: mariadb:10
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: osticket_db
+      MYSQL_USER: osticket
+      MYSQL_PASSWORD: manager_secret
+    volumes:
+      - data:/var/lib/mysql
+
+  osticket:
+    container_name: osticket
+    image: osticket:latest
+    environment:
+      OSTICKET_DB_HOST: osticket-db
+      OSTICKET_DB_NAME: osticket_db
+      OSTICKET_DB_USER: osticket
+      OSTICKET_DB_PASS: manager_secret
+    ports:
+      - "80:80"
+    volumes:
+      - /var/www/osticket
+    depends_on:
+      - osticket-db
+
 volumes:
-    data:
+  data:
+
